@@ -39,8 +39,16 @@ export default {
       toggleAddTask() {
          this.showAddTask = !this.showAddTask;
       },
-      addTask(task) {
-         this.tasks = [...this.tasks, task];
+      async addTask(task) {
+         const res = await fetch("api/tasks", {
+            method: "POST",
+            headers: {
+               "Content-type": "application/json",
+            },
+            body: JSON.stringify(task),
+         });
+         const data = await res.json();
+         this.tasks = [...this.tasks, data];
       },
       deleteTask(id) {
          if (confirm("Are you sure?")) {
@@ -52,29 +60,20 @@ export default {
             task.id === id ? { ...task, reminder: !task.reminder } : task
          );
       },
+      async fetchTasks() {
+         const res = await fetch("api/tasks");
+         const data = await res.json();
+         return data;
+      },
+      async fetchTask(id) {
+         const res = await fetch(`api/tasks/${id}`);
+         const data = await res.json();
+         return data;
+      },
    },
-   created() {
+   async created() {
       //a life cycle method
-      this.tasks = [
-         {
-            id: 1,
-            text: "Doctors Appointment",
-            day: "March 1st at 2:30 pm",
-            reminder: false,
-         },
-         {
-            id: 2,
-            text: "Push the repository",
-            day: "March 1st at 3:30 am",
-            reminder: true,
-         },
-         {
-            id: 3,
-            text: "Deploy",
-            day: "March 1st at 2:10 pm",
-            reminder: true,
-         },
-      ];
+      this.tasks = await this.fetchTasks();
    },
 };
 </script>
